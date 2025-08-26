@@ -131,7 +131,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 .trim()
                 .split(/\r?\n/)
                 .map(parseCSVLine)
-                .filter(row => row.length);
+                .filter(row => row.length)
+                .map(row => row.filter(cell => cell !== ""));
             rows.shift();
 
             rows.forEach(row => {
