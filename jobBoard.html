@@ -21,7 +21,7 @@
             <h1>Job Listings</h1>
             <div class="stats">
                 <div class="stat-item">
-                    <strong>Number of jobs:</strong> 14
+                    <strong>Number of jobs:</strong>&nbsp;<span id="job-count">0</span>
                 </div>
                 <div class="stat-item">
                     <strong>Pay range:</strong> Min: $50,000 - Max: $150,000
@@ -107,6 +107,7 @@
 </html>
 
 <script>
+    let activeJobs;
 function parseCSVLine(line) {
     if (!line.trim()) return []; // skip blank lines
     return line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g)
@@ -142,7 +143,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 .map(row => row.filter(cell => cell !== ""))
                 .map(replaceUnderscoresInRow)
                 .filter(row => row[8].trim().toLowerCase() === "false");
+            activeJobs = [...rows];
             rows.shift();
+
+            document.getElementById("job-count").innerText = activeJobs.length;
 
             rows.forEach(row => {
                 if (row.length < 9) return;
