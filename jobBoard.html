@@ -21,7 +21,7 @@
             <h1>Job Listings</h1>
             <div class="stats">
                 <div class="stat-item">
-                    <strong>Number of jobs:</strong> 14
+                    <strong>Number of jobs:</strong>&nbsp;<span id="job-count">0</span>
                 </div>
                 <div class="stat-item">
                     <strong>Pay range:</strong> Min: $50,000 - Max: $150,000
@@ -93,7 +93,7 @@
                         <th>Contact Person</th>
                         <th>Location</th>
                         <th>Apply</th>
-                        <th>Vacancy</th>
+                        <!-- <th>Vacancy</th> -->
                     </tr>
                 </thead>
                 <tbody id="jobTableBody">
@@ -107,6 +107,7 @@
 </html>
 
 <script>
+    let activeJobs;
 function parseCSVLine(line) {
     if (!line.trim()) return []; // skip blank lines
     return line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g)
@@ -120,8 +121,15 @@ function parseCSVLine(line) {
 }
 
 
+function replaceUnderscoresInRow(row) {
+    const newRow = [...row];
+    newRow[7] = newRow[7].replaceAll("_", " ");
+    return newRow;
+}
+
+
 document.addEventListener("DOMContentLoaded", function () {
-    const sheetUrl = "https://docs.google.com/spreadsheets/d/1-LMX_seYzsrZf7XMcsKLqgE5CtX1aAaulRolKSlzt7g/gviz/tq?tqx=out:csv";
+    const sheetUrl = "https://docs.google.com/spreadsheets/d/1OHIJj0D0Q-2lHgSL184vxBaxhIdSYqzso3UJvcRUflo/gviz/tq?tqx=out:csv"
     const tableBody = document.getElementById("jobTableBody");
 
     fetch(sheetUrl)
@@ -131,8 +139,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 .trim()
                 .split(/\r?\n/)
                 .map(parseCSVLine)
-                .filter(row => row.length);
-            rows.shift();
+                .filter(row => row.length)
+                .map(row => row.filter(cell => cell !== ""))
+                .map(replaceUnderscoresInRow)
+                .filter(row => row[8].trim().toLowerCase() === "false");
+            activeJobs = [...rows];
+
+            document.getElementById("job-count").innerText = activeJobs.length;
 
             rows.forEach(row => {
                 if (row.length < 9) return;
@@ -141,13 +154,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 row.forEach((cell, index) => {
                     const td = document.createElement("td");
-                    if (index === 8 && cell.trim()) { 
+                    if (index === 8 && cell.trim().toLowerCase() === "false") {
+                        tr.appendChild(td);
+                        return;
+                    }
+                    else if (index === 8 && cell.trim()) {
                         const link = document.createElement("a");
                         link.href = cell.trim();
                         link.textContent = cell.trim();
                         link.target = "_blank";
                         td.appendChild(link);
-                    } else {
+                    }
+                    else {
                         td.textContent = cell.trim();
                     }
                     tr.appendChild(td);
