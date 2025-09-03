@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const jobData = await fetchJobData(sheetUrl);
     activeJobs = parseJobData(jobData);
     applyFilters(activeJobs);
+    // job stats
     activeJobs = parseJobData(jobData);
     applyFilters(activeJobs);
     updateStats(activeJobs);
@@ -287,15 +288,16 @@ function getPaginationRange(current, total) {
   return rangeWithDots;
 }
 
+// Job stats update function
 function updateStats(jobs) {
   const jobCountEl = document.getElementById("job-count");
   const payRangeEl = document.getElementById("pay-range");
-  const skillsEl = document.getElementById("skills-list"); // update HTML to wrap skills
+  const skillsEl = document.getElementById("skills-list"); 
 
   // Number of jobs (within last 30 days)
   const now = new Date();
   const recentJobs = jobs.filter(row => {
-    const postedDate = new Date(row[3]); // assume column 4 = PostedDate
+    const postedDate = new Date(row[0]);
     const diffDays = (now - postedDate) / (1000 * 60 * 60 * 24);
     return diffDays <= 30;
   });
@@ -303,7 +305,7 @@ function updateStats(jobs) {
 
   // Pay range
   const salaries = jobs
-    .map(row => parseInt(row[4])) // assume column 5 = Salary
+    .map(row => parseInt(row[5].replace(/[$,]/g, '')))
     .filter(val => !isNaN(val));
   
   if (salaries.length > 0) {
@@ -317,7 +319,7 @@ function updateStats(jobs) {
   // Skills counts
   const skillCounts = {};
   jobs.forEach(row => {
-    const skill = row[4]; // assume column 7 = Language
+    const skill = row[4];
     if (skill) {
       skillCounts[skill] = (skillCounts[skill] || 0) + 1;
     }

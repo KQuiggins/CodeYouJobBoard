@@ -218,10 +218,14 @@ footer {
   font-size: 1rem;
   transition: border-color 0.3s ease;
 }
+
 .filter-select:focus {
   border-color: var(--b-blue);
   outline: none;
 }
+
+
+/* Job Table */
 .table-container {
   background: var(--white);
   border-radius: 20px;
