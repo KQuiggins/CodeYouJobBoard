@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Submission</title>
+  </head>
+  <body>
+    <form id="jobForm">
+      <label>
+        Employer:
+        <input type="text" name="employer" required />
+      </label>
+
+      <label>
+        Job Title:
+        <input type="text" name="jobTitle" required />
+      </label>
+
+      <label>
+        Pathway:
+        <select name="pathway" required>
+          <option value="Software">Software</option>
+          <option value="Web">Web</option>
+          <option value="Data">Data</option>
+          <option value="PHP">PHP</option>
+        </select>
+      </label>
+
+      <label>
+        Language:
+        <input
+          type="text"
+          name="language"
+          placeholder="e.g. Python, JavaScript"
+          required
+        />
+      </label>
+
+      <label>
+        Salary Range:
+        <input
+          type="text"
+          name="salaryRange"
+          placeholder="$70,000 - $90,000"
+          required
+        />
+      </label>
+
+      <label>
+        Contact Person:
+        <input type="text" name="contactPerson" />
+      </label>
+
+      <label>
+        Location:
+        <input type="text" name="location" />
+      </label>
+
+      <button type="submit">Submit Job</button>
+    </form>
+
+    <script>
+      const form = document.getElementById("jobForm");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // Gather form data
+        const formData = Object.fromEntries(new FormData(form).entries());
+
+        try {
+          const response = await fetch(
+            "https://script.google.com/macros/s/AKfycbxaPsDjbtPmu_pnyCdLFL21aJaBwPqZLiilJmhXIlIXGb_1KUObeFdMZaJ_Z3aOgpfHWA/exec",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(formData),
+            }
+          );
+
+          const result = await response.json();
+          console.log("Server response:", result);
+
+          alert("Job submitted successfully!");
+          form.reset();
+        } catch (error) {
+          console.error("Error submitting job:", error);
+          alert("There was an error submitting the job.");
+        }
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  body {
+    font-family: "Arial", sans-serif;
+    background: var(--bg-2, #f4f4f4);
+    color: var(--black, #111);
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+  }
+
+  form#jobForm {
+    background: var(--white, #fff);
+    border-radius: 20px;
+    padding: 30px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--b-blue, #0077cc);
+  }
+
+  input[type="text"],
+  select {
+    padding: 10px 12px;
+    margin-top: 6px;
+    border-radius: 12px;
+    border: 1px solid var(--bg-2, #ddd);
+    font-size: 0.9rem;
+  }
+
+  button[type="submit"] {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: linear-gradient(
+      135deg,
+      var(--b-blue, #0077cc),
+      var(--b-torquise, #00c9b1)
+    );
+    color: var(--white, #fff);
+    border: none;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  h2 {
+    text-align: center;
+    color: var(--b-blue, #0077cc);
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 768px) {
+    form#jobForm {
+      padding: 20px;
+    }
+
+    input[type="text"],
+    select {
+      font-size: 0.8rem;
+    }
+
+    button[type="submit"] {
+      font-size: 0.8rem;
+      padding: 8px 16px;
+    }
+  }
+</style>
