@@ -24,7 +24,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     const csvText = await fetchJobData(sheetUrl);
-    const jobData = parseJobData(csvText).jobs;
+    const jobData = parseJobData(csvText);
+    const allJobs = createJobs(jobData.tableHeaders, jobData.jobs);
+    const aJobs = getActiveJobs(allJobs);
+    ZZapplyFilters(aJobs);
+
     activeJobs = parseJobData(csvText).jobs;
     applyFilters(activeJobs);
     updateStats(activeJobs);
@@ -32,6 +36,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Error loading sheet:", error);
   }
 });
+
+function getActiveJobs(allJobs) {
+  return allJobs.filter((job) => !job["Deactivate?"]);
+}
 
 async function fetchJobData(url) {
   let result;
@@ -86,6 +94,8 @@ function createJobs(keys, jobData) {
           salaryRange.length > 1 ? parseFloat(salaryRange[1].trim()) : null;
 
         parsedJob[key] = { min, max };
+      } else if (key.trim().toLowerCase() === "language") {
+        parsedJob[key] = job[index].split(",");
       } else {
         parsedJob[key] = job[index].trim();
       }
@@ -110,6 +120,18 @@ function parseDate(str) {
   }
 
   return date;
+}
+
+function ZZapplyFilters(items) {
+  currentPage = 1;
+  const criteria = getFilterCriteria();
+  const filteredItems = ZZfilterItems(items, criteria);
+  console.log(filteredItems);
+
+  // const tableHeaders = [...items[0]];
+  // renderTable(filteredItems);
+  // populateJobCount(filteredItems);
+  // populateMinMaxSalary(filteredItems);
 }
 
 function applyFilters(items) {
@@ -151,6 +173,28 @@ function filterItems(items, criteria) {
   return result;
 }
 
+function ZZfilterItems(objects, criteria) {
+  let result = [...objects];
+
+  if (criteria.searchTerm) {
+    result = ZZgetSearchResults(result, criteria.searchTerm);
+  }
+
+  if (criteria.pathway) {
+    result = result.filter(
+      (item) => item["Pathway"].trim() === criteria.pathway
+    );
+  }
+
+  if (criteria.location) {
+    result = result.filter(
+      (item) => item["Location"].trim() === criteria.location
+    );
+  }
+
+  return result;
+}
+
 function getSearchResults(itemsToSearch, searchTerm) {
   const result = itemsToSearch.filter((item) => {
     const employer = item[1].trim().toLowerCase();
@@ -161,6 +205,24 @@ function getSearchResults(itemsToSearch, searchTerm) {
       employer.includes(searchTerm) ||
       jobTitle.includes(searchTerm) ||
       skills.includes(searchTerm)
+    );
+  });
+
+  return result;
+}
+
+function ZZgetSearchResults(itemsToSearch, searchTerm) {
+  const result = itemsToSearch.filter((item) => {
+    const employer = item["Employer"].trim().toLowerCase();
+    console.log(item);
+    const jobTitle = item["Job Title"].trim().toLowerCase();
+
+    return (
+      employer.includes(searchTerm) ||
+      jobTitle.includes(searchTerm) ||
+      item["Language"].some((lang) =>
+        lang.trim().toLowerCase().includes(searchTerm)
+      )
     );
   });
 
