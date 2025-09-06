@@ -1,5 +1,6 @@
 let activeJobs = [];
 let tableHeaders = [];
+let sortState = { key: null, direction: "asc" };
 let perPage = 10;
 let totalPages = 0;
 let currentPage = 1;
@@ -31,7 +32,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     tableHeaders = jobData.tableHeaders;
     applyFilters(activeJobs);
-    updateJobStats(activeJobs);
   } catch (error) {
     console.error("Error loading sheet:", error);
   }
@@ -127,6 +127,7 @@ function applyFilters(items) {
   const criteria = getFilterCriteria();
   const filteredItems = filterItems(items, criteria);
 
+  sortItems(filteredItems, sortState);
   renderTable(filteredItems);
   updateJobStats(filteredItems);
 }
@@ -218,7 +219,7 @@ function renderTable(tableItems) {
   const itemsToDisplay = paginate(tableItems, currentPage, perPage);
   tableEl.innerHTML = "";
 
-  renderHeader(tableEl, tableHeaders);
+  renderHeader(tableEl, tableHeaders, tableItems);
   const tableBody = document.createElement("tbody");
   tableBody.id = "jobTableBody";
 
@@ -255,20 +256,39 @@ function renderTable(tableItems) {
   renderPaginationControls(tableItems);
 }
 
-function renderHeader(tableEl, headers) {
-  const head = document.createElement("thead");
+function renderHeader(tableEl, headers, tableItems) {
+  const thead = document.createElement("thead");
   const tr = document.createElement("tr");
+  const sortableColumns = [0, 1, 2, 3, 5, 7];
 
-  headers.forEach((header) => {
+  headers.forEach((header, colIndex) => {
     if (header.trim().toLowerCase().includes("deactivate")) return;
 
     const th = document.createElement("th");
     th.textContent = header;
+    if (header === sortState.key) {
+      th.textContent += sortState.direction === "asc" ? " ▲" : " ▼";
+    }
+
+    if (sortableColumns.includes(colIndex)) {
+      th.classList.add("sortable-header");
+
+      th.addEventListener("click", () => {
+        const newDirection =
+          sortState.key === header && sortState.direction === "asc"
+            ? "desc"
+            : "asc";
+
+        sortState = { key: header, direction: newDirection };
+        applyFilters(tableItems);
+      });
+    }
+
     tr.appendChild(th);
   });
 
-  head.appendChild(tr);
-  tableEl.appendChild(head);
+  thead.appendChild(tr);
+  tableEl.appendChild(thead);
 }
 
 function paginate(items, currentPage = 1, perPage = 20) {
@@ -403,4 +423,22 @@ function updateJobStats(jobs) {
     .join(", ");
 
   skillsEl.textContent = skillsText;
+}
+
+function sortItems(items, sortState) {
+  const { key, direction } = sortState;
+  if (!key) return;
+
+  items.sort((a, b) => {
+    const valA = a[key];
+    const valB = b[key];
+
+    if (key.toLowerCase().includes("salary")) {
+      return (valA.min - valB.min) * (direction === "asc" ? 1 : -1);
+    } else if (key.toLowerCase().includes("date")) {
+      return (valA - valB) * (direction === "asc" ? 1 : -1);
+    } else {
+      return valA.localeCompare(valB) * (direction === "asc" ? 1 : -1);
+    }
+  });
 }
