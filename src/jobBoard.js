@@ -361,7 +361,9 @@ function renderPaginationControls(tableItems) {
 }
 
 function getPaginationRange(current, total) {
-  const numNeighboringPages = 2;
+  const viewportWidth = window.outerWidth;
+  console.log(viewportWidth);
+  const numNeighboringPages = viewportWidth <= 550 ? 0 : 2;
   const range = [];
   const rangeWithDots = [];
 
