@@ -186,7 +186,7 @@ function getSearchResults(itemsToSearch, searchTerm) {
 function parseCSVLine(line) {
   if (!line.trim()) return []; // skip blank lines
   return (
-    line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g)?.map((cell) => {
+    line.match(/("([^"]|"")*"|[^,]*)(?=,|$)/g)?.map((cell) => {
       cell = cell.trim();
       if (cell.startsWith('"') && cell.endsWith('"')) {
         cell = cell.slice(1, -1).replace(/""/g, '"');
