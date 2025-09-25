@@ -55,6 +55,7 @@ function parseJobData(data) {
     .map(parseCSVLine)
     .filter((row) => row.length)
     .map((row) => row.filter((cell) => cell !== ""))
+    .filter((row) => row.length === 9)
     .map(replaceUnderscoresInRow);
 
   result.tableHeaders = [...jobData[0]];
@@ -68,6 +69,7 @@ function createJobs(keys, jobData) {
 
   jobData.forEach((job) => {
     const parsedJob = {};
+    if (job.length < 9) return;
 
     keys.forEach((key, index) => {
       if (key.trim().toLowerCase() === "date") {
@@ -186,7 +188,7 @@ function getSearchResults(itemsToSearch, searchTerm) {
 function parseCSVLine(line) {
   if (!line.trim()) return []; // skip blank lines
   return (
-    line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g)?.map((cell) => {
+    line.match(/("([^"]|"")*"|[^,]*)(?=,|$)/g)?.map((cell) => {
       cell = cell.trim();
       if (cell.startsWith('"') && cell.endsWith('"')) {
         cell = cell.slice(1, -1).replace(/""/g, '"');
@@ -218,6 +220,12 @@ function formatDollar(amount) {
 
 function renderTable(tableItems) {
   const tableEl = document.getElementById("jobTable");
+  const jobDataStatusEl = document.querySelector(".job-data-status");
+
+  if (tableItems.length === 0) {
+    jobDataStatusEl.textContent = "No Jobs Posted in the Last 30 Days";
+    return;
+  }
   const itemsToDisplay = paginate(tableItems, currentPage, perPage);
   tableEl.innerHTML = "";
 
@@ -260,6 +268,9 @@ function renderTable(tableItems) {
 
   tableEl.appendChild(tableBody);
   renderPaginationControls(tableItems);
+  const tableWrapper = document.querySelector(".table-wrapper");
+  tableWrapper.classList.remove("no-display");
+  jobDataStatusEl.classList.add("no-display");
 }
 
 function renderHeader(tableEl, headers, tableItems) {
@@ -362,7 +373,6 @@ function renderPaginationControls(tableItems) {
 
 function getPaginationRange(current, total) {
   const viewportWidth = window.outerWidth;
-  console.log(viewportWidth);
   const numNeighboringPages = viewportWidth <= 550 ? 0 : 2;
   const range = [];
   const rangeWithDots = [];
@@ -398,6 +408,13 @@ function updateJobStats(jobs) {
   const payRangeEl = document.getElementById("pay-range");
   const skillsEl = document.getElementById("skills-list");
 
+  if (jobs.length === 0) {
+    jobCountEl.textContent = "0";
+    payRangeEl.textContent = "No Salary Data";
+    skillsEl.textContent = "No Skills Data";
+    return;
+  }
+
   jobCountEl.textContent = jobs.length;
 
   // Show min and max salary
@@ -413,6 +430,7 @@ function updateJobStats(jobs) {
       maxSalary = maxSalary = Math.max(maxSalary, job["Salary Range"].max);
     }
   });
+
   payRangeEl.textContent = `${formatDollar(minSalary)} - ${formatDollar(
     maxSalary
   )}`;
