@@ -54,8 +54,9 @@ function parseJobData(data) {
     .split(/\r?\n/)
     .map(parseCSVLine)
     .filter((row) => row.length)
-    .map((row) => row.filter((cell) => cell !== ""));
-  // .map(replaceUnderscoresInRow);
+    .map((row) => row.filter((cell) => cell !== ""))
+    .filter((row) => row.length === 9)
+    .map(replaceUnderscoresInRow);
 
   result.tableHeaders = [...jobData[0]];
   result.jobs = [...jobData.slice(1)];
