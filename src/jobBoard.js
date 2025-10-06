@@ -262,13 +262,16 @@ function renderTable(tableItems) {
       }
 
       if (lowerHeader.includes("apply")) {
-        if (item[header] !== "-") {
-          td.textContent = "";
-          const applyLink = document.createElement("a");
-          applyLink.target = "_blank";
-          applyLink.href = item[header];
-          applyLink.textContent = "Apply Now";
-          td.appendChild(applyLink);
+        if (item[header].length > 4) {
+          const firstFiveChars = item[header].substring(0, 5);
+          if (firstFiveChars.includes("http")) {
+            td.textContent = "";
+            const applyLink = document.createElement("a");
+            applyLink.target = "_blank";
+            applyLink.href = item[header];
+            applyLink.textContent = "Apply Now";
+            td.appendChild(applyLink);
+          }
         }
       }
 
