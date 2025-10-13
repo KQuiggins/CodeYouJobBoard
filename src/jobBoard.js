@@ -55,7 +55,7 @@ function parseJobData(data) {
     .map(parseCSVLine)
     .filter((row) => row.length)
     .map((row) => row.filter((cell) => cell !== ""))
-    .filter((row) => row.length === 9)
+    .filter((row) => row.length >= 9)
     .map(replaceUnderscoresInRow);
 
   result.tableHeaders = [...jobData[0]];
@@ -72,16 +72,17 @@ function createJobs(keys, jobData) {
     if (job.length < 9) return;
 
     keys.forEach((key, index) => {
-      if (key.trim().toLowerCase() === "date") {
+      const trimmedKey = key.trim();
+      if (trimmedKey.toLowerCase() === "date") {
         parsedJob[key] = parseDate(job[index]);
-      } else if (key.trim().toLowerCase() === "deactivate?") {
+      } else if (trimmedKey.toLowerCase() === "deactivate?") {
         // Convert the deactivate? field to an actual boolean
         if (job[index].trim().toLowerCase() === "false") {
           parsedJob[key] = false;
         } else {
           parsedJob[key] = true;
         }
-      } else if (key.trim().toLowerCase().includes("salary")) {
+      } else if (trimmedKey.toLowerCase().includes("salary")) {
         // Parse the salary values to floats
         const salaryRange = job[index].trim().replace(/[$,]/g, "").split("-");
         const min = parseFloat(salaryRange[0].trim());
@@ -89,7 +90,7 @@ function createJobs(keys, jobData) {
           salaryRange.length > 1 ? parseFloat(salaryRange[1].trim()) : null;
 
         parsedJob[key] = { min, max };
-      } else if (key.trim().toLowerCase() === "language") {
+      } else if (trimmedKey.toLowerCase() === "language") {
         parsedJob[key] = job[index].split(",");
       } else {
         parsedJob[key] = job[index].trim();
@@ -221,9 +222,12 @@ function formatDollar(amount) {
 function renderTable(tableItems) {
   const tableEl = document.getElementById("jobTable");
   const jobDataStatusEl = document.querySelector(".job-data-status");
+  const tableWrapper = document.querySelector(".table-wrapper");
 
   if (tableItems.length === 0) {
     jobDataStatusEl.textContent = "No Jobs Posted in the Last 30 Days";
+    jobDataStatusEl.classList.remove("no-display");
+    tableWrapper.classList.add("no-display");
     return;
   }
   const itemsToDisplay = paginate(tableItems, currentPage, perPage);
@@ -251,13 +255,31 @@ function renderTable(tableItems) {
         const min = item[header].min;
         const max = item[header].max;
 
-        td.textContent = `${formatDollar(min)}${
-          max ? ` - ${formatDollar(max)}` : ""
-        }`;
+        if (!min) {
+          td.textContent = "Not Provided";
+        } else {
+          td.textContent = `${formatDollar(min)}${
+            max ? ` - ${formatDollar(max)}` : ""
+          }`;
+        }
       }
 
       if (lowerHeader.includes("language")) {
         td.textContent = item[header].join(", ");
+      }
+
+      if (lowerHeader.includes("apply")) {
+        if (item[header].length > 4) {
+          const firstFiveChars = item[header].substring(0, 5);
+          if (firstFiveChars.includes("http")) {
+            td.textContent = "";
+            const applyLink = document.createElement("a");
+            applyLink.target = "_blank";
+            applyLink.href = item[header];
+            applyLink.textContent = "Apply Now";
+            td.appendChild(applyLink);
+          }
+        }
       }
 
       tr.appendChild(td);
@@ -268,7 +290,6 @@ function renderTable(tableItems) {
 
   tableEl.appendChild(tableBody);
   renderPaginationControls(tableItems);
-  const tableWrapper = document.querySelector(".table-wrapper");
   tableWrapper.classList.remove("no-display");
   jobDataStatusEl.classList.add("no-display");
 }
@@ -431,9 +452,13 @@ function updateJobStats(jobs) {
     }
   });
 
-  payRangeEl.textContent = `${formatDollar(minSalary)} - ${formatDollar(
-    maxSalary
-  )}`;
+  if (!minSalary && !maxSalary) {
+    payRangeEl.textContent = "No Data Available";
+  } else {
+    payRangeEl.textContent = `${formatDollar(minSalary)} - ${formatDollar(
+      maxSalary
+    )}`;
+  }
 
   // Get skill counts
   const skillCounts = {};
