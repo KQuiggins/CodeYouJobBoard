@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&family=Share+Tech+Mono&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <!-- Chart.js CDN / Plugins -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+  </head>
+
+  <body>
+    <aside>
+      <img
+        src="./assets/imgs/cy-logo-dstacked-color.png"
+        alt="CodeYou Logo"
+        class="logo"
+        id="logo-stacked"
+      />
+      <img
+        src="./assets/imgs/cy-logo-horz-color.png"
+        alt="Code:You Logo"
+        class="logo-horizontal"
+        id="logo-horizontal"
+      />
+
+      <nav>
+        <a href="index.html"><i class="fa-solid fa-house"></i> Home</a>
+        <a href="jobBoard.html"
+          ><i class="fa-solid fa-briefcase"></i> Job Board</a
+        >
+        <a href="dashboard.html" class="active"><i class="fa-solid fa-chart-bar"></i> Dashboard</a>
+        <a href="contact.html"
+          ><i class="fa-solid fa-address-book"></i> Contact Us</a
+        >
+      </nav>
+      <p style="font-size: small;">Tip: Click on Location and Language chart slices to filter results!</p>
+    </aside>
+
+    <div class="container">
+      <div class="header">
+        <h1>Jobs Dashboard</h1>
+        <p>Interactive stats for CodeYou job opportunities (last 90 days by default).</p>
+      </div>
+
+      <!-- Date Range Selector -->
+      <section class="date-section">
+        <h2>Date Range</h2>
+        <div class="date-controls">
+          <div class="date-controls-left">
+            <label for="startDate">From:</label>
+            <input type="date" id="startDate" class="filter-select" />
+            <label for="endDate">To:</label>
+            <input type="date" id="endDate" class="filter-select" />
+            <!-- Inline date-range warning (hidden by default) -->
+            <span id="dateWarning" class="date-warning" aria-live="polite" hidden></span>
+          </div>
+          <div id="jobCount" class="job-count">Number of Jobs: Loading...</div>
+        </div>
+        <!-- Loading overlay shown while dashboard data/charts are initializing -->
+        <div id="loadingOverlay" class="loading-overlay" aria-hidden="false">
+          <div class="loading-box">
+            <div class="spinner" aria-hidden="true"></div>
+            <div class="loading-text">Loading dashboard…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Filters Section -->
+      <div class="filters-row-wrapper">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label for="languageSelect">Languages</label>
+            <select class="filter-select" id="languageSelect"></select>
+          </div>
+          <div class="filter-group">
+            <label for="locationSelect">Locations</label>
+            <select class="filter-select" id="locationSelect"></select>
+          </div>
+          <div class="filter-group">
+            <label for="salarySelect">Salary</label>
+            <select class="filter-select" id="salarySelect"></select>
+          </div>
+        </div>
+        <button id="clearFilters" class="filter-btn">Clear All Filters</button>
+      </div>
+
+      <!-- Charts Section -->
+      <section class="charts-section">
+        <div class="chart-grid">
+          <!-- Pie: Salary by Location -->
+          <div class="charts-row">
+            <div class="chart-item">
+                <h3 class="chart-title">Location</h3>
+                <canvas id="pieChart" width="400" height="400"></canvas>
+            </div>
+
+            <!-- Donut: Language Breakdown -->
+            <div class="chart-item">
+                <h3 class="chart-title">Language Breakdown</h3>
+                <canvas id="donutChart" width="400" height="400"></canvas>
+            </div>
+
+            <!-- Bar: Salary Bins -->
+            <div class="chart-item">
+                <h3 class="chart-title">Salary</h3>
+                <canvas id="barChart" width="400" height="400"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Table Section: mirror jobBoard table style -->
+      <section class="table-section">
+        <div class="table-wrapper">
+          <table class="job-table" id="dashboardJobTable">
+            <thead>
+              <tr id="dashboardTableHeadRow">
+                <!-- headers populated by JS -->
+              </tr>
+            </thead>
+            <tbody id="dashboardJobTableBody">
+              <!-- Rows populated by JS -->
+            </tbody>
+          </table>
+          <div class="pagination-controls" id="dashboard-pagination"></div>
+        </div>
+        <div class="job-data-status" id="dashboardJobStatus" hidden></div>
+      </section>
+
+      <footer>
+        <p>&copy; 2025 Code:You. All rights reserved.</p>
+      </footer>
+      <div class="hamburger">
+        <i class="fa-solid fa-bars"></i>
+      </div>
+    </div>
+
+    <script src="./src/menu.js"></script>
+    <script src="./src/dashboard.js"></script>
+  </body>
+</html>

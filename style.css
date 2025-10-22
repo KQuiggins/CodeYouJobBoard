@@ -235,6 +235,119 @@ footer {
   outline: none;
 }
 
+.filters-row-wrapper {
+  display: flex;
+  /* align to bottom so button lines up with selects (labels sit above selects)
+     keeps wrapping behavior for small screens */
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 18px 0;
+}
+
+.filter-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+}
+
+/* Match the Clear All Filters button to selects */
+.filter-btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: var(--white);
+  color: var(--black);
+  font-weight: 600;
+  height: 40px; /* match typical select height */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.filter-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+}
+
+/* Date warning (inline) */
+.date-warning {
+  display: inline-block;
+  margin-left: 10px;
+  color: #8a3b3b;
+  background: rgba(138,59,59,0.06);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+/* Loading overlay */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.8);
+  z-index: 9999;
+}
+.loading-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+.spinner {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid rgba(16,99,150,0.15);
+  border-top-color: #106396;
+  animation: spin 1s linear infinite;
+}
+.loading-text {
+  font-size: 18px;
+  color: #881f48;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.date-section .date-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.date-controls-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.date-controls input[type="date"],
+.date-controls .filter-select {
+  padding: 10px;
+  border: 2px solid var(--b-blue);
+  border-radius: 10px;
+  font-size: 1rem;
+}
+
+.job-count {
+  font-weight: 600;
+  font-size: 1.3rem;
+  color: var(--b-blue);
+}
+
 /* Job Table */
 .table-container {
   background: var(--white);
@@ -273,6 +386,12 @@ footer {
 
 .job-table .sortable-header {
   cursor: pointer;
+}
+
+.job-table th .sort-indicator {
+  margin-left: 8px;
+  font-size: 0.85em;
+  opacity: 0.9;
 }
 
 .job-table td {
@@ -488,6 +607,10 @@ footer {
   color: var(--bg-2);
 }
 
+.pagination-controls#dashboard-pagination {
+    background-color: var(--b-blue);
+}
+
 /* contact page */
 
 .staff-cards {
@@ -565,6 +688,44 @@ td a {
 
 td a:visited {
   color: var(--b-yellow);
+}
+
+/* dashboard layout */
+.charts-row {
+  display: flex;
+  min-height: 400px;
+  align-items: stretch;
+  gap: 1rem; 
+  width: 100%; 
+  flex-wrap: wrap; 
+  margin-top: 1rem; 
+}
+
+.chart-item {
+  flex: 1 1 calc(33.333% - 1rem); 
+  width: 100%;
+  max-width: 100vw; 
+  min-width: 250px; 
+  height: 100%; 
+  background: var(--bg-5); 
+  padding: 0.75rem; 
+  border-radius: 6px; 
+  border: 1px solid rgba(0,0,0,0.1); 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+}
+
+.chart-item canvas {
+  /* Ensure charts fit container */
+  width: 100% !important;
+  height: auto !important;
+}
+
+h3.chart-title {
+  padding: 0;
+  margin-bottom: 10px;
+  margin-top: 0;
+  text-align: left;
+  color: var(--bg-2);
 }
 
 @media (max-width: 1200px) {
@@ -705,6 +866,16 @@ td a:visited {
   .hamburger {
     display: flex;
   }
+
+  .charts-row {
+    flex-direction: column; /* Stack vertically on tablet/mobile */
+    gap: 0.75rem; /* Slightly tighter gap on small screens */
+  }
+
+  .chart-item {
+    height: 200px; /* Slightly shorter on mobile for thumb scroll */
+    min-width: auto; /* Full width on stack */
+  }
 }
 
 @media (max-width: 600px) {
@@ -751,5 +922,18 @@ td a:visited {
   .stats {
     flex-direction: column;
     gap: 10px;
+  }
+
+  .date-section .date-controls {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .date-controls-left {
+    flex-direction: column;
+    gap: 8px;
   }
 }
