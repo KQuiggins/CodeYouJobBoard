@@ -54,6 +54,7 @@ aside {
   background-color: var(--bg-5);
   color: var(--white);
   color: var(--buckcherry);
+  font-family: var(--font-alt-headline);
   padding: 40px 20px;
   width: 200px;
   flex-shrink: 0;
@@ -133,6 +134,7 @@ section h2 {
 aside a {
   display: flex;
   align-items: center;
+  font-family: var(--font-alt-headline);
   text-decoration: none;
   color: var(--blue);
   gap: 10px;
@@ -237,8 +239,6 @@ footer {
 
 .filters-row-wrapper {
   display: flex;
-  /* align to bottom so button lines up with selects (labels sit above selects)
-     keeps wrapping behavior for small screens */
   align-items: flex-end;
   gap: 16px;
   flex-wrap: wrap;
@@ -261,7 +261,7 @@ footer {
   background: var(--white);
   color: var(--black);
   font-weight: 600;
-  height: 40px; /* match typical select height */
+  height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -316,6 +316,7 @@ footer {
   font-size: 18px;
   color: #881f48;
 }
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
