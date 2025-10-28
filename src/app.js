@@ -8,12 +8,14 @@
  * @requires express
  * @requires path
  * @requires axios
+ * @requires mongoose
  * @requires dotenv
  */
 
 const express = require('express');
 const path = require('path');
 const axios = require('axios');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 /**
@@ -30,11 +32,18 @@ const app = express();
  */
 const PORT = process.env.PORT || 3000;
 
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('✅ MongoDB Connected Successfully'))
+.catch((err) => console.error('❌ MongoDB Connection Error:', err));
+
 /**
  * Middleware for serving static files.
- * Serves all files from the `public` directory.
+ * Serves all files from the root directory.
  */
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '..')));
 
 /**
  * GET /
@@ -46,7 +55,7 @@ app.use(express.static(path.join(__dirname, 'public')));
  * @returns {void}
  */
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
 /**
