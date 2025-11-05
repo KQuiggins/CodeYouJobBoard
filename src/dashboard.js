@@ -227,7 +227,19 @@ function parseCSVLine(line) {
   return result;
 }
 
-// Replace underscores with spaces in each cell of a row
+/**
+ * Replaces all underscores with spaces in every cell of a given row array.
+ * This function creates a new array by mapping over each cell in the input row,
+ * replacing underscores globally in each string cell for improved readability.
+ * - Used during CSV parsing to normalize text fields across the entire row
+ * 
+ * @param {Array<string>} row - The array of string cells representing a parsed row
+ * @returns {Array<string>} A new array with underscores replaced
+ * @example
+ * const inputRow = ['Coca_Cola', 'Data Analyst', 'Central_KY'];
+ * const output = replaceUnderscoresInRow(inputRow);
+ * // output = ['Coca Cola', 'Data Analyst', 'Central KY']
+ */
 function replaceUnderscoresInRow(row) {
   return row.map(cell => cell.replace(/_/g, ' '));
 }
