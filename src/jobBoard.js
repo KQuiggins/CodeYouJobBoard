@@ -301,6 +301,15 @@ function parseDollar(str) {
 }
 
 function formatDollar(amount) {
+  /**
+ * Formats a numeric amount into a US dollar string.
+ *
+ * Adds a dollar sign and formats the number with comma separators
+ * and exactly two decimal places (e.g., "$1,234.56").
+ *
+ * @param {number} amount - The numeric value to format.
+ * @returns {string} The formatted dollar string.
+ */
   return (
     "$" +
     amount.toLocaleString("en-US", {
