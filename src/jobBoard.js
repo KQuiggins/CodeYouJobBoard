@@ -147,7 +147,7 @@ function parseDate(str) {
   return date;
 }
 
- function refreshView(items) {
+function refreshView(items) {
  /**
  * Current page number in the pagination system.
  * @type {number}
@@ -190,6 +190,19 @@ function applyFilters(items) {
   return filterItems(items, criteria);
 }
 
+/**
+ * Retrieves and trims filter criteria from DOM input elements.
+ * This function collects user-entered values for search, pathway, and location filters,
+ * trims any leading/trailing whitespace, and returns them as an object.
+ * 
+ * @returns {Object} An object containing the trimmed filter values:
+ *                   - searchTerm: string from #searchInput
+ *                   - pathway: string from #pathwayFilter
+ *                   - location: string from #locationFilter
+ * @example
+ * const criteria = getFilterCriteria();
+ * // criteria = { searchTerm: "engineer", pathway: "Python", location: "Eastern KY" }
+ */
 function getFilterCriteria() {
   const result = {
     searchTerm: document.getElementById("searchInput").value.trim(),
@@ -264,6 +277,19 @@ function parseCSVLine(line) {
   );
 }
 
+/**
+ * Replaces all underscores in the column of a row array with spaces.
+ * This function creates a shallow copy of the input row to avoid mutating the original,
+ * modifies only the specified index ("Location" column), and returns the updated array. 
+ * - Used during CSV parsing to clean up underscored text in Location field
+ * 
+ * @param {Array<string>} row - The array representing a parsed CSV row
+ * @returns {Array<string>} A new array with underscores replaced
+ * @example
+ * const inputRow = ['Val1', 'Val2', 'Val3', 'Val4', 'Val5', 'Val6', 'Val7', 'Central_KY', 'Val9'];
+ * const output = replaceUnderscoresInRow(inputRow);
+ * // output = ['Val1', 'Val2', 'Val3', 'Val4', 'Val5', 'Val6', 'Val7', 'Central KY', 'Val9']
+ */
 function replaceUnderscoresInRow(row) {
   const newRow = [...row];
   newRow[7] = newRow[7].replaceAll("_", " ");
@@ -368,40 +394,65 @@ function renderTable(tableItems) {
   jobDataStatusEl.classList.add("no-display");
 }
 
+/**
+ * Creates and adds a table header to an HTML table.
+ * @param {HTMLElement} tableEl - The table element to add the header to.
+ * @param {string[]} headers - Array of column names for the header.
+ * @param {Object[]} tableItems - Array of job objects to be displayed.
+ */
 function renderHeader(tableEl, headers, tableItems) {
+  // Create a <thead> element to hold the table header
   const thead = document.createElement("thead");
+  // Create a <tr> element for the header row
   const tr = document.createElement("tr");
+  // Define indices of columns that can be sorted
   const sortableColumns = [0, 1, 2, 3, 5, 6, 7];
 
+  // Loop through each header name with its index
   headers.forEach((header, colIndex) => {
+    // Skip headers containing "deactivate" (case-insensitive)
     if (header.trim().toLowerCase().includes("deactivate")) return;
 
+    // Create a <th> element for the header cell
     const th = document.createElement("th");
+    // Set the header text
     th.textContent = header;
+    // Add a class to prevent text selection
     th.classList.add("no-select");
 
+    // Add sort indicator ( ▲ or ▼ ) if this header is currently sorted
     if (header === sortState.key) {
       th.textContent += sortState.direction === "asc" ? " ▲" : " ▼";
     }
 
+    // Make header sortable if its index is in sortableColumns
     if (sortableColumns.includes(colIndex)) {
+      // Add class to style sortable headers
       th.classList.add("sortable-header");
 
+      // Add click event listener to toggle sort direction and refresh table
       th.addEventListener("click", () => {
+        // Switch direction if the same column is clicked, otherwise default to ascending
         const newDirection =
           sortState.key === header && sortState.direction === "asc"
             ? "desc"
             : "asc";
 
+        // Update sort state
         sortState = { key: header, direction: newDirection };
+        // Refresh table with updated sort
         refreshView(tableItems);
       });
     }
 
+    // Add the header cell to the row
     tr.appendChild(th);
   });
 
+
+  // Add the header row to the <thead>
   thead.appendChild(tr);
+  // Add the <thead> to the table
   tableEl.appendChild(thead);
 }
 
@@ -413,6 +464,17 @@ function paginate(items, currentPage = 1, perPage = 20) {
 }
 
 function renderPaginationControls(tableItems) {
+  /**
+  * Updates the pagination controls for a table view.
+ *
+ * Clears existing controls and adds a "Previous" button if the current page is not the first.
+ * The button decrements the current page and re-renders the table when clicked.
+ *
+ * @param {number} totalPages - Total number of pages available.
+ * @param {number} currentPage - The current page number being viewed.
+ * @param {Array<Object>} tableItems - The items to render in the table.
+ * @param {Function} renderTable - Callback function to render the table with updated items.
+ */
   const controlsElement = document.getElementById("pagination-controls");
   controlsElement.innerHTML = "";
   if (totalPages <= 1) return;
@@ -498,11 +560,22 @@ function getPaginationRange(current, total) {
   return rangeWithDots;
 }
 
+/**
+ * Updates the job stats displayed on the dashboard based on a list of job objects.
+ * This function modifies DOM elements to show the total job count, salary range (min to max across all jobs),
+ * and a comma-separated list of skill counts (aggregated from languages in each job).
+ * - Handles edge cases like no jobs or missing salary data by setting fallback text
+ * - Relies on formatDollar() for currency formatting
+ * 
+ * @param {Array<Object>} jobs - The array of job objects to compute stats from
+ * @returns {void} Updates DOM elements directly; no return value
+ */
 function updateJobStats(jobs) {
   const jobCountEl = document.getElementById("job-count");
   const payRangeEl = document.getElementById("pay-range");
   const skillsEl = document.getElementById("skills-list");
 
+  // Handles no jobs case by setting default text
   if (jobs.length === 0) {
     jobCountEl.textContent = "0";
     payRangeEl.textContent = "No Salary Data";
@@ -510,9 +583,11 @@ function updateJobStats(jobs) {
     return;
   }
 
+  // Sets the job count display to the number of jobs
   jobCountEl.textContent = jobs.length;
 
-  // Show min and max salary
+  // Shows min and max salary
+  // - Calculates the overall minimum and maximum salary across all jobs
   let minSalary = Infinity;
   let maxSalary = -Infinity;
 
@@ -526,6 +601,8 @@ function updateJobStats(jobs) {
     }
   });
 
+  // Sets the pay range text: fallback if no valid salaries, else formatted min-max
+  // - Uses formatDollar() to convert numbers to currency strings
   if (!minSalary && !maxSalary) {
     payRangeEl.textContent = "No Data Available";
   } else {
@@ -534,7 +611,9 @@ function updateJobStats(jobs) {
     )}`;
   }
 
-  // Get skill counts
+  // Gets skill counts
+  // - Aggregates counts of each unique skill/language across all jobs
+  // - Uses an object as a map for efficient counting
   const skillCounts = {};
   jobs.forEach((job) => {
     job["Language"].forEach((lang) => {
@@ -546,7 +625,8 @@ function updateJobStats(jobs) {
     });
   });
 
-  // Turn into a display string
+  // Sets the skills list text
+  // - Converts skill counts object into a comma-separated string for display
   const skillsText = Object.entries(skillCounts)
     .map(([skill, count]) => `${skill}: ${count}`)
     .join(", ");
