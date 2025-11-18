@@ -6,9 +6,9 @@ let totalPages = 0;
 let currentPage = 1;
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const sheetUrl =
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTjCxhcf73XCjoHZM2NtJ5WCrVEj2gGvH5QrnHnpsuSe1tcP_rfg8CFXbiOnQ64s1gOksAE6QFYknGR/pub?output=csv";
-
+  // const sheetUrl =
+  //   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTjCxhcf73XCjoHZM2NtJ5WCrVEj2gGvH5QrnHnpsuSe1tcP_rfg8CFXbiOnQ64s1gOksAE6QFYknGR/pub?output=csv";
+   const sheetUrl = "/api/sheet";
   const searchInput = document.getElementById("searchInput");
   searchInput.addEventListener("input", () => {
     refreshView(activeJobs);
@@ -38,41 +38,32 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function fetchJobData(url) {
-  let result;
-
   const response = await fetch(url);
-  result = await response.text();
-
-  return result;
+  if (!response.ok) {
+    throw new Error(`Failed to load jobs (${response.status})`);
+  }
+  console.log(response);
+  
+  const payload = await response.json();
+  if (!payload?.values?.length) {
+    throw new Error("Job payload missing values array");
+  }
+  console.log("Fetched job data:", payload.values);
+  return payload.values;
 }
 
-function parseJobData(data) {
-  let result = {};
-/** Defines jobData variable.
- * Defines how job data is displayed, makes sure if there are extra spaces that it can read and parse and display it correctly still.
- * trim() makes sure to trim/remove the whitespace before and after the input string.
- * split(/\r?\n/): Splits the string into an array of lines. It accounts for both Windows (\r\n) and Unix (\n) line endings.
- * .map(parseCSVLine): Applies the parseCSVLine function to each line, parsing it into an array of cells.
- * .filter((row) => row.length): Filters out any rows that are empty.
- * .map((row) => row.filter((cell) => cell !== "")): Removes empty cells from each row.
- * .filter((row) => row.length >= 9): Keeps only rows that have at least 9 cells.
- * .map(replaceUnderscoresInRow): Applies the replaceUnderscoresInRow function to each row. This replaces underscores with spaces or other characters for legibility.
- * result.tableHeaders = [...jobData[0]];: Assigns the first row of jobData (headers) to result.tableHeaders.
- * result.jobs = [...jobData.slice(1)];: Assigns all rows except the first (the actual job data) to result.jobs.
- */
-  const jobData = data
-    .trim()
-    .split(/\r?\n/)
-    .map(parseCSVLine)
-    .filter((row) => row.length)
-    .map((row) => row.filter((cell) => cell !== ""))
-    .filter((row) => row.length >= 9)
-    .map(replaceUnderscoresInRow);
 
-  result.tableHeaders = [...jobData[0]];
-  result.jobs = [...jobData.slice(1)];
 
-  return result;
+function parseJobData(values) {
+  const [headers = [], ...rows] = values;
+  const normalizedRows = rows
+    .filter((row) => row.some((cell) => cell && cell.trim() !== ""))
+    .map((row) => replaceUnderscoresInRow(headers.map((_, idx) => row[idx] ?? "")));
+
+  return {
+    tableHeaders: headers,
+    jobs: normalizedRows,
+  };
 }
 
 function createJobs(keys, jobData) {
@@ -190,6 +181,19 @@ function applyFilters(items) {
   return filterItems(items, criteria);
 }
 
+/**
+ * Retrieves and trims filter criteria from DOM input elements.
+ * This function collects user-entered values for search, pathway, and location filters,
+ * trims any leading/trailing whitespace, and returns them as an object.
+ * 
+ * @returns {Object} An object containing the trimmed filter values:
+ *                   - searchTerm: string from #searchInput
+ *                   - pathway: string from #pathwayFilter
+ *                   - location: string from #locationFilter
+ * @example
+ * const criteria = getFilterCriteria();
+ * // criteria = { searchTerm: "engineer", pathway: "Python", location: "Eastern KY" }
+ */
 function getFilterCriteria() {
   const result = {
     searchTerm: document.getElementById("searchInput").value.trim(),
@@ -251,18 +255,18 @@ function getSearchResults(itemsToSearch, searchTerm) {
   return result;
 }
 
-function parseCSVLine(line) {
-  if (!line.trim()) return []; // skip blank lines
-  return (
-    line.match(/("([^"]|"")*"|[^,]*)(?=,|$)/g)?.map((cell) => {
-      cell = cell.trim();
-      if (cell.startsWith('"') && cell.endsWith('"')) {
-        cell = cell.slice(1, -1).replace(/""/g, '"');
-      }
-      return cell;
-    }) || []
-  );
-}
+// function parseCSVLine(line) {
+//   if (!line.trim()) return []; // skip blank lines
+//   return (
+//     line.match(/("([^"]|"")*"|[^,]*)(?=,|$)/g)?.map((cell) => {
+//       cell = cell.trim();
+//       if (cell.startsWith('"') && cell.endsWith('"')) {
+//         cell = cell.slice(1, -1).replace(/""/g, '"');
+//       }
+//       return cell;
+//     }) || []
+//   );
+// }
 
 /**
  * Replaces all underscores in the column of a row array with spaces.
@@ -288,6 +292,15 @@ function parseDollar(str) {
 }
 
 function formatDollar(amount) {
+  /**
+ * Formats a numeric amount into a US dollar string.
+ *
+ * Adds a dollar sign and formats the number with comma separators
+ * and exactly two decimal places (e.g., "$1,234.56").
+ *
+ * @param {number} amount - The numeric value to format.
+ * @returns {string} The formatted dollar string.
+ */
   return (
     "$" +
     amount.toLocaleString("en-US", {
@@ -372,40 +385,65 @@ function renderTable(tableItems) {
   jobDataStatusEl.classList.add("no-display");
 }
 
+/**
+ * Creates and adds a table header to an HTML table.
+ * @param {HTMLElement} tableEl - The table element to add the header to.
+ * @param {string[]} headers - Array of column names for the header.
+ * @param {Object[]} tableItems - Array of job objects to be displayed.
+ */
 function renderHeader(tableEl, headers, tableItems) {
+  // Create a <thead> element to hold the table header
   const thead = document.createElement("thead");
+  // Create a <tr> element for the header row
   const tr = document.createElement("tr");
+  // Define indices of columns that can be sorted
   const sortableColumns = [0, 1, 2, 3, 5, 6, 7];
 
+  // Loop through each header name with its index
   headers.forEach((header, colIndex) => {
+    // Skip headers containing "deactivate" (case-insensitive)
     if (header.trim().toLowerCase().includes("deactivate")) return;
 
+    // Create a <th> element for the header cell
     const th = document.createElement("th");
+    // Set the header text
     th.textContent = header;
+    // Add a class to prevent text selection
     th.classList.add("no-select");
 
+    // Add sort indicator ( ▲ or ▼ ) if this header is currently sorted
     if (header === sortState.key) {
       th.textContent += sortState.direction === "asc" ? " ▲" : " ▼";
     }
 
+    // Make header sortable if its index is in sortableColumns
     if (sortableColumns.includes(colIndex)) {
+      // Add class to style sortable headers
       th.classList.add("sortable-header");
 
+      // Add click event listener to toggle sort direction and refresh table
       th.addEventListener("click", () => {
+        // Switch direction if the same column is clicked, otherwise default to ascending
         const newDirection =
           sortState.key === header && sortState.direction === "asc"
             ? "desc"
             : "asc";
 
+        // Update sort state
         sortState = { key: header, direction: newDirection };
+        // Refresh table with updated sort
         refreshView(tableItems);
       });
     }
 
+    // Add the header cell to the row
     tr.appendChild(th);
   });
 
+
+  // Add the header row to the <thead>
   thead.appendChild(tr);
+  // Add the <thead> to the table
   tableEl.appendChild(thead);
 }
 
@@ -513,11 +551,22 @@ function getPaginationRange(current, total) {
   return rangeWithDots;
 }
 
+/**
+ * Updates the job stats displayed on the dashboard based on a list of job objects.
+ * This function modifies DOM elements to show the total job count, salary range (min to max across all jobs),
+ * and a comma-separated list of skill counts (aggregated from languages in each job).
+ * - Handles edge cases like no jobs or missing salary data by setting fallback text
+ * - Relies on formatDollar() for currency formatting
+ * 
+ * @param {Array<Object>} jobs - The array of job objects to compute stats from
+ * @returns {void} Updates DOM elements directly; no return value
+ */
 function updateJobStats(jobs) {
   const jobCountEl = document.getElementById("job-count");
   const payRangeEl = document.getElementById("pay-range");
   const skillsEl = document.getElementById("skills-list");
 
+  // Handles no jobs case by setting default text
   if (jobs.length === 0) {
     jobCountEl.textContent = "0";
     payRangeEl.textContent = "No Salary Data";
@@ -525,9 +574,11 @@ function updateJobStats(jobs) {
     return;
   }
 
+  // Sets the job count display to the number of jobs
   jobCountEl.textContent = jobs.length;
 
-  // Show min and max salary
+  // Shows min and max salary
+  // - Calculates the overall minimum and maximum salary across all jobs
   let minSalary = Infinity;
   let maxSalary = -Infinity;
 
@@ -541,6 +592,8 @@ function updateJobStats(jobs) {
     }
   });
 
+  // Sets the pay range text: fallback if no valid salaries, else formatted min-max
+  // - Uses formatDollar() to convert numbers to currency strings
   if (!minSalary && !maxSalary) {
     payRangeEl.textContent = "No Data Available";
   } else {
@@ -549,7 +602,9 @@ function updateJobStats(jobs) {
     )}`;
   }
 
-  // Get skill counts
+  // Gets skill counts
+  // - Aggregates counts of each unique skill/language across all jobs
+  // - Uses an object as a map for efficient counting
   const skillCounts = {};
   jobs.forEach((job) => {
     job["Language"].forEach((lang) => {
@@ -561,7 +616,8 @@ function updateJobStats(jobs) {
     });
   });
 
-  // Turn into a display string
+  // Sets the skills list text
+  // - Converts skill counts object into a comma-separated string for display
   const skillsText = Object.entries(skillCounts)
     .map(([skill, count]) => `${skill}: ${count}`)
     .join(", ");
