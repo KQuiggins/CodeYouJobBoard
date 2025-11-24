@@ -1,11 +1,14 @@
+/* ==========================================================================
+   Variables
+   ========================================================================== */
 :root {
-  /*Primary Colors*/
+  /* Primary Colors */
   --black-cherry: #881f48;
   --black-berry: #022f47;
   --white: #ffffff;
   --black: #000000;
 
-  /*Background Clours (BG)*/
+  /* Background Colors (BG) */
   --bg-1: #31465a;
   --bg-2: #586275;
   --bg-3: #828796;
@@ -37,6 +40,9 @@
   --font-alt-headline: "Share Tech Mono", monospace;
 }
 
+/* ==========================================================================
+   Reset & Base Styles
+   ========================================================================== */
 * {
   box-sizing: border-box;
 }
@@ -48,6 +54,30 @@ body {
   margin: 0;
   min-height: 100vh;
   display: flex;
+}
+
+/* ==========================================================================
+   Layout
+   ========================================================================== */
+.container {
+  width: 80vw;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 20px;
+  background-color: var(--bg-1);
+}
+
+.header {
+  text-align: center;
+  color: var(--white);
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-family: var(--font-alt-headline);
 }
 
 aside {
@@ -62,17 +92,6 @@ aside {
   flex-direction: column;
   align-items: center;
   margin-right: 20px;
-}
-
-.logo {
-  width: 70%;
-  height: auto;
-  margin-bottom: 80px;
-  align-self: center;
-}
-
-.logo-horizontal {
-  display: none;
 }
 
 aside h1 {
@@ -112,25 +131,31 @@ section h2 {
   color: var(--b-blue);
 }
 
-.section-img {
-  width: 100%;
-  max-height: 200px;
-  margin-bottom: 20px;
-  object-fit: cover;
-  border-radius: 8px;
+footer {
+  text-align: center;
+  padding: 20px;
+  color: var(--white);
+  font-size: 0.9em;
+  margin-top: auto;
 }
 
-.how-to {
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
+/* ==========================================================================
+   Components
+   ========================================================================== */
+
+/* --- Logo --- */
+.logo {
+  width: 70%;
+  height: auto;
+  margin-bottom: 80px;
+  align-self: center;
 }
 
-.how-to ul {
-  flex: 1;
-  list-style-type: disc;
+.logo-horizontal {
+  display: none;
 }
 
+/* --- Navigation --- */
 aside a {
   display: flex;
   align-items: center;
@@ -144,35 +169,48 @@ aside a {
   transition: color 0.3s ease;
 }
 
-footer {
-  text-align: center;
-  padding: 20px;
-  color: var(--white);
-  font-size: 0.9em;
-  margin-top: auto;
+.hamburger {
+  font-size: 1rem;
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  display: none;
+  width: 2rem;
+  height: 2rem;
+  background-color: var(--black-cherry);
+  color: var(--bg-5);
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  border-radius: 50%;
 }
 
-.container {
-  width: 80vw;
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 0 20px;
-  background-color: var(--bg-1);
+.hamburger i {
+  pointer-events: none;
 }
 
-.header {
-  text-align: center;
-  color: var(--white);
-  margin-bottom: 30px;
+/* --- General / Images --- */
+.section-img {
+  width: 100%;
+  max-height: 200px;
+  margin-bottom: 20px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
-.header h1 {
-  font-size: 2.5rem;
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  font-family: var(--font-alt-headline);
+/* --- How To --- */
+.how-to {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
 }
 
+.how-to ul {
+  flex: 1;
+  list-style-type: disc;
+}
+
+/* --- Stats --- */
 .stats {
   display: flex;
   justify-content: center;
@@ -190,6 +228,7 @@ footer {
   flex-grow: 1;
 }
 
+/* --- Search & Filters --- */
 .search-bar {
   width: 100%;
   padding: 15px 20px;
@@ -253,11 +292,10 @@ footer {
   flex: 1 1 auto;
 }
 
-/* Match the Clear All Filters button to selects */
 .filter-btn {
   padding: 10px 14px;
   border-radius: 10px;
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   background: var(--white);
   color: var(--black);
   font-weight: 600;
@@ -271,54 +309,17 @@ footer {
 
 .filter-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
 }
 
-/* Date warning (inline) */
 .date-warning {
   display: inline-block;
   margin-left: 10px;
   color: #8a3b3b;
-  background: rgba(138,59,59,0.06);
+  background: rgba(138, 59, 59, 0.06);
   padding: 4px 8px;
   border-radius: 6px;
   font-size: 12px;
-}
-
-/* Loading overlay */
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.8);
-  z-index: 9999;
-}
-.loading-box {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-}
-.spinner {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 3px solid rgba(16,99,150,0.15);
-  border-top-color: #106396;
-  animation: spin 1s linear infinite;
-}
-.loading-text {
-  font-size: 18px;
-  color: #881f48;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 .date-section .date-controls {
@@ -343,13 +344,7 @@ footer {
   font-size: 1rem;
 }
 
-.job-count {
-  font-weight: 600;
-  font-size: 1.3rem;
-  color: var(--b-blue);
-}
-
-/* Job Table */
+/* --- Job Table --- */
 .table-container {
   background: var(--white);
   width: 100%;
@@ -417,13 +412,6 @@ footer {
   border-bottom: none;
 }
 
-.table-container .pagination-controls {
-  background-color: var(--b-blue);
-  color: var(--white);
-  height: 50px;
-  width: 100%;
-}
-
 .job-data-status {
   color: var(--b-purple);
   font-size: 2rem;
@@ -432,6 +420,25 @@ footer {
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
+}
+
+td a {
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+td a:visited {
+  color: var(--b-yellow);
+}
+
+/* --- Job Items (Tags, Skills, Buttons) --- */
+.job-count {
+  font-weight: 600;
+  font-size: 1.3rem;
+  color: var(--b-blue);
 }
 
 .company-link {
@@ -532,6 +539,54 @@ footer {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
+/* --- Pagination --- */
+.table-container .pagination-controls {
+  background-color: var(--b-blue);
+  color: var(--white);
+  height: 50px;
+  width: 100%;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.pagination-controls button {
+  background-color: var(--black-cherry);
+  color: var(--white);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.pagination-controls button:hover {
+  background-color: var(--b-magenta);
+  color: var(--white);
+  border-color: #007bff;
+}
+
+.pagination-controls button.active {
+  background-color: var(--b-blue);
+  color: var(--white);
+  border-color: var(--b-blue);
+  font-weight: bold;
+}
+
+.pagination-controls button:disabled {
+  background-color: var(--white);
+  color: var(--bg-2);
+}
+
+.pagination-controls#dashboard-pagination {
+  background-color: var(--b-blue);
+}
+
+/* --- Helpful Links --- */
 .helpful-links-top {
   margin-top: 25px;
   padding-top: 20px;
@@ -573,47 +628,7 @@ footer {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.pagination-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
-  gap: 10px;
-}
-
-.pagination-controls button {
-  background-color: var(--black-cherry);
-  color: var(--white);
-  border-radius: 6px;
-  padding: 6px 12px;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-.pagination-controls button:hover {
-  background-color: var(--b-magenta);
-  color: var(--white);
-  border-color: #007bff;
-}
-
-.pagination-controls button.active {
-  background-color: var(--b-blue);
-  color: var(--white);
-  border-color: var(--b-blue);
-  font-weight: bold;
-}
-
-.pagination-controls button:disabled {
-  background-color: var(--white);
-  color: var(--bg-2);
-}
-
-.pagination-controls#dashboard-pagination {
-    background-color: var(--b-blue);
-}
-
-/* contact page */
-
+/* --- Staff Cards --- */
 .staff-cards {
   background-color: var(--bg-5);
   display: flex;
@@ -643,76 +658,28 @@ footer {
   border: 4px solid var(--b-blue);
 }
 
-.no-select {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-.hamburger {
-  font-size: 1rem;
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  display: none;
-  width: 2rem;
-  height: 2rem;
-  background-color: var(--black-cherry);
-  color: var(--bg-5);
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-  border-radius: 50%;
-}
-
-.hamburger i {
-  pointer-events: none;
-}
-
-.no-scroll {
-  overflow: hidden;
-}
-
-.no-display {
-  display: none;
-}
-
-td a {
-  font-weight: bold;
-  color: white;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-td a:visited {
-  color: var(--b-yellow);
-}
-
-/* dashboard layout */
+/* --- Charts --- */
 .charts-row {
   display: flex;
   min-height: 400px;
   align-items: stretch;
-  gap: 1rem; 
-  width: 100%; 
-  flex-wrap: wrap; 
-  margin-top: 1rem; 
+  gap: 1rem;
+  width: 100%;
+  flex-wrap: wrap;
+  margin-top: 1rem;
 }
 
 .chart-item {
-  flex: 1 1 calc(33.333% - 1rem); 
+  flex: 1 1 calc(33.333% - 1rem);
   width: 100%;
-  max-width: 100vw; 
-  min-width: 250px; 
-  height: 100%; 
-  background: var(--bg-5); 
-  padding: 0.75rem; 
-  border-radius: 6px; 
-  border: 1px solid rgba(0,0,0,0.1); 
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+  max-width: 100vw;
+  min-width: 250px;
+  height: 100%;
+  background: var(--bg-5);
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .chart-item canvas {
@@ -729,14 +696,80 @@ h3.chart-title {
   color: var(--bg-2);
 }
 
+/* --- Loaders --- */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 9999;
+}
+
+.loading-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid rgba(16, 99, 150, 0.15);
+  border-top-color: #106396;
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  font-size: 18px;
+  color: #881f48;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+.no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
+
+.no-display {
+  display: none;
+}
+
+/* ==========================================================================
+   Media Queries
+   ========================================================================== */
 @media (max-width: 1200px) {
   .job-table {
     font-size: 0.8rem;
   }
+
   .job-table th,
   .job-table td {
     padding: 10px 8px;
   }
+
   .skills {
     max-width: 150px;
   }
@@ -839,9 +872,11 @@ h3.chart-title {
   .table-container {
     padding: 20px;
   }
+
   .job-table {
     font-size: 0.7rem;
   }
+
   .job-table th,
   .job-table td {
     padding: 8px 6px;
@@ -856,9 +891,11 @@ h3.chart-title {
     min-width: 60px;
     font-size: 0.7rem;
   }
+
   .skills {
     max-width: 120px;
   }
+
   .skill-tag {
     font-size: 0.6rem;
     padding: 2px 6px;
@@ -869,13 +906,17 @@ h3.chart-title {
   }
 
   .charts-row {
-    flex-direction: column; /* Stack vertically on tablet/mobile */
-    gap: 0.75rem; /* Slightly tighter gap on small screens */
+    flex-direction: column;
+    /* Stack vertically on tablet/mobile */
+    gap: 0.75rem;
+    /* Slightly tighter gap on small screens */
   }
 
   .chart-item {
-    height: 200px; /* Slightly shorter on mobile for thumb scroll */
-    min-width: auto; /* Full width on stack */
+    height: 200px;
+    /* Slightly shorter on mobile for thumb scroll */
+    min-width: auto;
+    /* Full width on stack */
   }
 }
 
