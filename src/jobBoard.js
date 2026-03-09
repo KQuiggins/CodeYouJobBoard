@@ -1,6 +1,6 @@
 let activeJobs = [];
 let tableHeaders = [];
-let sortState = { key: Date, direction: "desc" };
+let sortState = { key: "", direction: "desc" };
 let perPage = 10;
 let totalPages = 0;
 let currentPage = 1;
@@ -608,18 +608,27 @@ function updateJobStats(jobs) {
 
 function sortItems(items, sortState) {
   const { key, direction } = sortState;
-  if (!key) return;
+  if (!key || typeof key !== 'string') return;
+
+  const dir = direction === 'asc' ? 1 : -1;
 
   items.sort((a, b) => {
     const valA = a[key];
     const valB = b[key];
 
+    if (valA == null && valB == null) return 0;
+    if (valA == null) return -1 * dir;
+    if (valB == null) return 1 * dir;
+
     if (key.toLowerCase().includes("salary")) {
-      return (valA.min - valB.min) * (direction === "asc" ? 1 : -1);
+      const aMin = valA?.min ?? 0;
+      const bMin = valB?.min ?? 0;
+      return (aMin - bMin) * dir;
     } else if (key.toLowerCase().includes("date")) {
-      return (valA - valB) * (direction === "asc" ? 1 : -1);
+      const aTime = valA instanceof Date ? valA.getTime() : new Date(valA).getTime();
+      const bTime = valB instanceof Date ? valB.getTime() : new Date(valB).getTime();
+      return (aTime - bTime) * dir;
     } else {
-      return valA.localeCompare(valB) * (direction === "asc" ? 1 : -1);
+      return String(valA).localeCompare(String(valB), undefined, { numeric: true }) * dir;
     }
-  });
-}
+  })}
