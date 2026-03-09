@@ -1,6 +1,6 @@
 let activeJobs = [];
 let tableHeaders = [];
-let sortState = { key: null, direction: "asc" };
+let sortState = { key: Date, direction: "desc" };
 let perPage = 10;
 let totalPages = 0;
 let currentPage = 1;
